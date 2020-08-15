@@ -58,7 +58,7 @@ static const struct file_operations meminfo_proc_fops = {
 
 static int __init proc_meminfo_init(void)
 {
-    printk(KERN_INFO "“Hola mundo, somos el grupo 24 y este es el monitor de memoria\n");
+    printk(KERN_INFO "Hola mundo, somos el grupo 24 y este es el monitor de memoria\n");
         proc_create("mem_grupo24", 0, NULL, &meminfo_proc_fops);
         return 0;
 }
