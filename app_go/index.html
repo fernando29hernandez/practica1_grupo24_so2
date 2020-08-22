@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    function procesos() {
+      $.ajax({
+        url: "/datosprocesos",
+        type: "get",
+        success: function (json) {
+          $("#total").html(json['TotalProcesos']);
+          $("#running").html(json['TotalEjecucion']);
+          $("#sleeping").html(json['TotalSuspendidos']);
+          $("#stoped").html(json['TotalDetenidos']);
+          $("#zombie").html(json['TotalZombie']);
+          var cadena = "<thead><tr>"
+            + "<th># </th>"
+            + "<th>PID</th>"
+            + "<th>Usuario</th>"
+            + "<th>Estado</th>"
+            + "<th>% RAM</th>"
+            + "<th>Nombre</th>"
+            + "<th>Kill</th>"
+          "</tr></thead>";
+          var arreglo_procesos = json['Procesos'];
+          cadena += "<tbody>"
+          for (var i = 0; i < arreglo_procesos.length; i++) {
+            let memoria_proc = ((parseInt(arreglo_procesos[i].Memoria) / 1000) * 100) / 3700;
+            cadena += "<tr>"
+              + "<td>" + (i + 1) + "</td>"
+              + "<td>" + arreglo_procesos[i].PID + "</td>"
+              + "<td>" + arreglo_procesos[i].Usuario + "</td>"
+              + "<td>" + arreglo_procesos[i].Estado + "</td>"
++ "<td>" + memoria_proc + "</td>"
+               + "<td>" + arreglo_procesos[i].Nombre + "</td>"
+              + "<td><a href=\"/kill/" + arreglo_procesos[i].PID + "\" class=\"btn btn-primary btn-lg active\" role=\"button\"> Terminar proceso</a>"+"<button onclick=\"myFunction2(\'myDIV"+arreglo_procesos[i].PID+"\')\">Mostrar Procesos Hijos</button>"+ "</td>" 
+            +"</tr>" 
+              +"<tr>"
+              +"<td>"
+              +"<div id=\""+"myDIV"+arreglo_procesos[i].PID +"\" style=\"display:none\""+">"
+              +"<table><thead><tr>"
+              + "<th># </th>"
+              + "<th>PID</th>"
+              + "<th>Usuario</th>"
+              + "<th>Estado</th>"
+              + "<th>% RAM</th>"
+              + "<th>Nombre</th>"
+            "</tr></thead>";
+            var arreglo_procesos1 = json['Procesos'];
+            cadena += "<tbody>"
+            for (var j = 0; j < arreglo_procesos1.length; j++) {
+              if (arreglo_procesos[i].PID == arreglo_procesos1[j].PID_Parent) {
+
+                let memoria_proc1 = ((parseInt(arreglo_procesos1[j].Memoria) / 1000) * 100) / 3700;
+
+                cadena += "<tr>"
+                  + "<td>" + (j + 1) + "</td>"
+                  + "<td>" + arreglo_procesos1[j].PID + "</td>"
+                  + "<td>" + arreglo_procesos1[j].Usuario + "</td>"
+                  + "<td>" + arreglo_procesos1[j].Estado + "</td>"
+                  + "<td>" + memoria_proc1 + "</td>"
+                  + "<td>" + arreglo_procesos1[j].Nombre + "</td>" +
+                  "</tr>" 
+                  ;
+              }
+            }
+            cadena+="</tbody>" +
+                    "</table>" +
+                    "</div>"+
+                    "</td>"+
+                    "</tr>"
+          }
+  cadena += "</tbody>"
+            $("#tabla_datos").html(cadena);
+
+          }
+
+        });
+    }
+    function looping() {
+      setInterval(procesos, 3 * 1000);
+    }
+
+    looping();
+  </script>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Practica 1 GRUPO 24</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Procesos<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/memoria">RAM</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+<h5 class="card-title">Cantidad total de procesos</h5>
+          <p class="card-text" id="total"></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Cantidad procesos en ejecucion</h5>
+          <p class="card-text" id="running"></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Cantidad procesos suspendidos</h5>
+          <p class="card-text" id="sleeping"></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Cantidad procesos detenidos</h5>
+          <p class="card-text" id="stoped"></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Cantidad procesos modo zombie</h5>
+          <p class="card-text" id="zombie"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br><br><br>
+  <script>
+function myFunction() {
+      var x = document.getElementById("myTopnav");
+      if (x.className === "topnav") {
+        x.className += " responsive";
+      } else {
+        x.className = "topnav";
+      }
+    }
+    function myFunction2(nombre) {
+  var x = document.getElementById(nombre);
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+  </script>
+  <div style="overflow-x:auto;">
+    <table id="tabla_datos" class="table table-striped table-dark"></table>
+  </div>
+
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<html>
+  <head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+      var intervalo = 0.1; //Tiempo en segundos de cada cuanto se van a refrescar los datos
+      var contador = 0;
+
+      var arreglo = [
+                      ['Tiempo', 'Porcentaje'],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0],
+                      [0, 0]
+                    ];
+
+      google.charts.load("current", {
+      callback: function () {
+
+        drawChart();
+        setInterval(drawChart, intervalo * 1000);
+
+        function drawChart() {
+          $.ajax({
+url: "/datosmemoria",
+          type: "get",
+          success: function (json) {
+
+            //Actualizo en el HTML
+            $("#total").html(json['Total'] + ' MB');
+            $("#consumida").html(json['Consumida']+' MB');
+            $("#porcentaje").html(json['Porcentaje']+ ' %');
+            
+
+            var options = {
+              title: 'Porcentaje de RAM utilizada',
+              hAxis: {title: 'Tiempo (s)',  titleTextStyle: {color: '#000'}},
+              vAxis: {title: 'Porcentaje de memoria (%)', minValue: 0},
+              backgroundColor: 'grey',
+              fontSize: 18
+            };
+
+            contador+=intervalo;
+
+            var nuevo_arreglo = [
+              ['Tiempo', 'Porcentaje'], //[0]
+              [arreglo[2][0], arreglo[2][1]],     //[1]
+              [arreglo[3][0], arreglo[3][1]],     //[2]
+              [arreglo[4][0], arreglo[4][1]],     //[3]
+              [arreglo[5][0], arreglo[5][1]],     //[4]
+              [arreglo[6][0], arreglo[6][1]],     //[1]
+              [arreglo[7][0], arreglo[7][1]],     //[2]
+              [arreglo[8][0], arreglo[8][1]],     //[3]
+              [arreglo[9][0], arreglo[9][1]],     //[4]
+              [arreglo[10][0], arreglo[10][1]],   //[4]
+              [contador, json['Porcentaje']]      //[5]
+            ];
+          
+
+            arreglo = nuevo_arreglo;
+            
+            var data = google.visualization.arrayToDataTable(arreglo);
+
+            //var data = google.visualization.arrayToDataTable(json);
+var chart = new google.visualization.AreaChart(document.getElementById("chart_div"));
+            chart.draw(data, options);
+            }
+          });
+        }
+
+      },
+        packages: ["corechart"]
+        });
+
+    </script>
+  </head>
+  <body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">Practica 1 Grupo 24</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/">Procesos<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/memoria">RAM</a>
+      </li>
+    </ul>    
+  </div>
+</nav>
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Memoria RAM total</h5>
+        <p class="card-text"id="total"></p>        
+      </div>
+    </div>
+  </div>
+<div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Memoria RAM utilizada</h5>
+        <p class="card-text"id="consumida"></p>        
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Porcentaje de utilizacion</h5>
+        <p class="card-text"id="porcentaje"></p>        
+      </div>
+    </div>
+  </div>
+</div>
+
+    <h2 id="total"></h2>
+    <h2 id="consumida"></h2>
+    <h2 id="porcentaje"></h2>
+
+    <div id="chart_div" style="width: 100%; height: 500px;"></div>
+  </body>
+</html>
