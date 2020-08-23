@@ -118,12 +118,12 @@ func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 	linea_memusada := strings.Split(lineas[1], ",")
 	mem_usada, _ := strconv.Atoi(strings.TrimSpace(linea_memusada[1]))
 	var total, consumida, porcentaje_consumo, megabytes float64
-	megabytes = 1024 * 1024
-	//fmt.Println(mem_total)
-	//fmt.Println(mem_usada)
+	megabytes = 1024
 	total = (float64)(mem_total) / megabytes     //Tamaño en MB
 	consumida = (float64)(mem_usada) / megabytes //Tamaño en MB
 	porcentaje_consumo = ((consumida * 100) / total)
+	//fmt.Println(total)
+        //fmt.Println(consumida)
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
 	type MEMORIA struct {
